@@ -1,0 +1,47 @@
+[1.081s] Invoking command in '/home/connor/px4-offboard': PYTHONPATH=/home/connor/px4-offboard/build/px4_offboard/prefix_override:/home/connor/px4-offboard/install/px4_offboard/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated setup.py egg_info --egg-base build/px4_offboard build --build-base /home/connor/px4-offboard/build/px4_offboard/build install --record /home/connor/px4-offboard/build/px4_offboard/install.log --single-version-externally-managed install_data
+[1.441s] running egg_info
+[1.441s] creating build/px4_offboard/px4_offboard.egg-info
+[1.449s] writing build/px4_offboard/px4_offboard.egg-info/PKG-INFO
+[1.449s] writing dependency_links to build/px4_offboard/px4_offboard.egg-info/dependency_links.txt
+[1.449s] writing entry points to build/px4_offboard/px4_offboard.egg-info/entry_points.txt
+[1.449s] writing requirements to build/px4_offboard/px4_offboard.egg-info/requires.txt
+[1.449s] writing top-level names to build/px4_offboard/px4_offboard.egg-info/top_level.txt
+[1.449s] writing manifest file 'build/px4_offboard/px4_offboard.egg-info/SOURCES.txt'
+[1.466s] reading manifest file 'build/px4_offboard/px4_offboard.egg-info/SOURCES.txt'
+[1.466s] adding license file 'LICENSE'
+[1.466s] writing manifest file 'build/px4_offboard/px4_offboard.egg-info/SOURCES.txt'
+[1.466s] running build
+[1.467s] running build_py
+[1.467s] creating /home/connor/px4-offboard/build/px4_offboard/build
+[1.467s] creating /home/connor/px4-offboard/build/px4_offboard/build/lib
+[1.467s] creating /home/connor/px4-offboard/build/px4_offboard/build/lib/px4_offboard
+[1.467s] copying px4_offboard/offboard_control.py -> /home/connor/px4-offboard/build/px4_offboard/build/lib/px4_offboard
+[1.467s] copying px4_offboard/__init__.py -> /home/connor/px4-offboard/build/px4_offboard/build/lib/px4_offboard
+[1.467s] copying px4_offboard/visualizer.py -> /home/connor/px4-offboard/build/px4_offboard/build/lib/px4_offboard
+[1.467s] running install
+[1.472s] running install_lib
+[1.481s] creating /home/connor/px4-offboard/install/px4_offboard/lib/python3.10/site-packages/px4_offboard
+[1.481s] copying /home/connor/px4-offboard/build/px4_offboard/build/lib/px4_offboard/offboard_control.py -> /home/connor/px4-offboard/install/px4_offboard/lib/python3.10/site-packages/px4_offboard
+[1.481s] copying /home/connor/px4-offboard/build/px4_offboard/build/lib/px4_offboard/__init__.py -> /home/connor/px4-offboard/install/px4_offboard/lib/python3.10/site-packages/px4_offboard
+[1.481s] copying /home/connor/px4-offboard/build/px4_offboard/build/lib/px4_offboard/visualizer.py -> /home/connor/px4-offboard/install/px4_offboard/lib/python3.10/site-packages/px4_offboard
+[1.481s] writing byte-compilation script '/tmp/tmp5ts8ljvv.py'
+[1.481s] /usr/bin/python3 -O /tmp/tmp5ts8ljvv.py
+[1.854s] removing /tmp/tmp5ts8ljvv.py
+[1.854s] running install_data
+[1.854s] creating /home/connor/px4-offboard/install/px4_offboard/share/ament_index
+[1.854s] creating /home/connor/px4-offboard/install/px4_offboard/share/ament_index/resource_index
+[1.854s] creating /home/connor/px4-offboard/install/px4_offboard/share/ament_index/resource_index/packages
+[1.854s] copying resource/px4_offboard -> /home/connor/px4-offboard/install/px4_offboard/share/ament_index/resource_index/packages
+[1.855s] copying resource/visualize.rviz -> /home/connor/px4-offboard/install/px4_offboard/share/ament_index/resource_index/packages
+[1.855s] copying package.xml -> /home/connor/px4-offboard/install/px4_offboard/share/px4_offboard
+[1.855s] copying launch/offboard_hardware_position_control.launch.py -> /home/connor/px4-offboard/install/px4_offboard/share/px4_offboard
+[1.855s] copying launch/visualize.launch.py -> /home/connor/px4-offboard/install/px4_offboard/share/px4_offboard
+[1.855s] copying launch/offboard_position_control.launch.py -> /home/connor/px4-offboard/install/px4_offboard/share/px4_offboard
+[1.855s] copying resource/visualize.rviz -> /home/connor/px4-offboard/install/px4_offboard/share/px4_offboard
+[1.855s] running install_egg_info
+[1.874s] Copying build/px4_offboard/px4_offboard.egg-info to /home/connor/px4-offboard/install/px4_offboard/lib/python3.10/site-packages/px4_offboard-0.0.0-py3.10.egg-info
+[1.875s] running install_scripts
+[1.966s] Installing offboard_control script to /home/connor/px4-offboard/install/px4_offboard/lib/px4_offboard
+[1.966s] Installing visualizer script to /home/connor/px4-offboard/install/px4_offboard/lib/px4_offboard
+[1.966s] writing list of installed files to '/home/connor/px4-offboard/build/px4_offboard/install.log'
+[1.985s] Invoked command in '/home/connor/px4-offboard' returned '0': PYTHONPATH=/home/connor/px4-offboard/build/px4_offboard/prefix_override:/home/connor/px4-offboard/install/px4_offboard/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated setup.py egg_info --egg-base build/px4_offboard build --build-base /home/connor/px4-offboard/build/px4_offboard/build install --record /home/connor/px4-offboard/build/px4_offboard/install.log --single-version-externally-managed install_data
