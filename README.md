@@ -23,7 +23,6 @@ ros2 run micro_ros_agent micro_ros_agent udp4 --port 8888 ROS_DOMAIN_ID=0
 ## Terminal 2 
 ```
 cd ~/PX4-Autopilot
-source ../px4_ros_com_ws/install/setup.bash
 source install/setup.bash
 export ROS_DOMAIN_ID=0
 export PYTHONOPTIMIZE=1
@@ -32,7 +31,6 @@ make px4_sitl gz_x500
 
 ## Terminal 3 from home directory 
 ```
-source ../px4_ros_com_ws/install/setup.bash
 source install/setup.bash
 chmod +x ./QGroundControl.AppImage
 ./QGroundControl.AppImage 
@@ -42,7 +40,7 @@ Click Takeoff from left hand menu, then slide to confirm
 ## Terminal 4 
 ```
 cd ~/px4-offboard
-source ../px4_ros_com_ws/install/setup.bash
+source install/setup.bash
 export ROS_DOMAIN_ID=0
 export PYTHONOPTIMIZE=1
 ros2 topic list

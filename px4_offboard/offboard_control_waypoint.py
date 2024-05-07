@@ -49,8 +49,8 @@ class OffboardControl(Node):
         # self.declare_parameter('waypoint_y', 50.0)
         # self.declare_parameter('waypoint_z', -15.0)
         self.param_x = 50.0
-        self.param_y =  50.0
-        self.param_z = 15.0
+        self.param_y =  150.0
+        self.param_z = -15.0
         self.nav_state = VehicleStatus.NAVIGATION_STATE_MAX
         self.arming_state = VehicleStatus.ARMING_STATE_DISARMED
 
