@@ -5,6 +5,7 @@ from rclpy.qos import QoSProfile, QoSReliabilityPolicy, QoSDurabilityPolicy, QoS
 from px4_msgs.msg import OffboardControlMode, TrajectorySetpoint, VehicleStatus
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Quaternion
+from tf_transformations import quaternion_from_euler
 
 class OffboardControl(Node):
 
@@ -45,12 +46,11 @@ class OffboardControl(Node):
         self.dt = timer_period
 
         # Parameters
-        # self.declare_parameter('waypoint_x', 50.0)
-        # self.declare_parameter('waypoint_y', 50.0)
-        # self.declare_parameter('waypoint_z', -15.0)
-        self.param_x = 50.0
-        self.param_y =  150.0
-        self.param_z = -15.0
+        self.declare_parameter('waypoint_x', 100.0)
+        self.declare_parameter('waypoint_y', 50.0)
+        self.declare_parameter('waypoint_z', -150.0)
+        self.declare_parameter('yaw_angle', 0.785398)
+
         self.nav_state = VehicleStatus.NAVIGATION_STATE_MAX
         self.arming_state = VehicleStatus.ARMING_STATE_DISARMED
 
@@ -82,14 +82,15 @@ class OffboardControl(Node):
         offboard_msg.acceleration = False
         self.publisher_offboard_mode.publish(offboard_msg)
 
-        # waypoint_x = self.get_parameter('waypoint_x').get_parameter_value()
-        # waypoint_y = self.get_parameter('waypoint_y').get_parameter_value()
-        # waypoint_z = self.get_parameter('waypoint_z').get_parameter_value()
-        waypoint_x = self.param_x 
-        waypoint_y = self.param_y 
-        waypoint_z = self.param_z 
-
-
+        waypoint_x = self.get_parameter('waypoint_x').value()
+        waypoint_y = self.get_parameter('waypoint_y').value()
+        waypoint_z = self.get_parameter('waypoint_z').value()
+        yaw_angle = self.get_parameter('yaw_angle').value()
+        # waypoint_x = self.param_x 
+        # waypoint_y = self.param_y 
+        # waypoint_z = self.param_z 
+        quaternion = quaternion_from_euler(0, 0, yaw_angle)
+        
         if (self.nav_state == VehicleStatus.NAVIGATION_STATE_OFFBOARD and
             self.arming_state == VehicleStatus.ARMING_STATE_ARMED):
             if not self.is_at_waypoint(waypoint_x, waypoint_y, waypoint_z, 1.0):
@@ -97,6 +98,10 @@ class OffboardControl(Node):
                 trajectory_msg.position[0] = waypoint_x
                 trajectory_msg.position[1] = waypoint_y
                 trajectory_msg.position[2] = waypoint_z
+                trajectory_msg.orientation.x = quaternion[0]
+                trajectory_msg.orientation.y = quaternion[1]
+                trajectory_msg.orientation.z = quaternion[2]
+                trajectory_msg.orientation.w = quaternion[3]
                 self.publisher_trajectory.publish(trajectory_msg)
             else:
                 self.timer.cancel()  # Stop updating if at the waypoint
