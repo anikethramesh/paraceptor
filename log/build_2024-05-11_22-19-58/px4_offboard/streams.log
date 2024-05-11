@@ -1,0 +1,25 @@
+[1.005s] Invoking command in '/home/connor/paraceptor': PYTHONPATH=/home/connor/paraceptor/build/px4_offboard/prefix_override:/home/connor/paraceptor/install/px4_offboard/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated setup.py egg_info --egg-base build/px4_offboard build --build-base /home/connor/paraceptor/build/px4_offboard/build install --record /home/connor/paraceptor/build/px4_offboard/install.log --single-version-externally-managed install_data
+[1.350s] running egg_info
+[1.359s] writing build/px4_offboard/px4_offboard.egg-info/PKG-INFO
+[1.359s] writing dependency_links to build/px4_offboard/px4_offboard.egg-info/dependency_links.txt
+[1.359s] writing entry points to build/px4_offboard/px4_offboard.egg-info/entry_points.txt
+[1.359s] writing requirements to build/px4_offboard/px4_offboard.egg-info/requires.txt
+[1.359s] writing top-level names to build/px4_offboard/px4_offboard.egg-info/top_level.txt
+[1.376s] reading manifest file 'build/px4_offboard/px4_offboard.egg-info/SOURCES.txt'
+[1.376s] writing manifest file 'build/px4_offboard/px4_offboard.egg-info/SOURCES.txt'
+[1.376s] running build
+[1.376s] running build_py
+[1.377s] copying px4_offboard/offboard_control.py -> /home/connor/paraceptor/build/px4_offboard/build/lib/px4_offboard
+[1.377s] copying px4_offboard/__init__.py -> /home/connor/paraceptor/build/px4_offboard/build/lib/px4_offboard
+[1.377s] copying px4_offboard/visualizer.py -> /home/connor/paraceptor/build/px4_offboard/build/lib/px4_offboard
+[1.377s] running install
+[1.382s] running install_lib
+[1.390s] copying /home/connor/paraceptor/build/px4_offboard/build/lib/px4_offboard/offboard_control.py -> /home/connor/paraceptor/install/px4_offboard/lib/python3.10/site-packages/px4_offboard
+[1.390s] writing byte-compilation script '/tmp/tmp7t2iz4w7.py'
+[1.390s] /usr/bin/python3 -O /tmp/tmp7t2iz4w7.py
+[1.681s] removing /tmp/tmp7t2iz4w7.py
+[1.681s] running install_data
+[1.681s] copying resource/px4_offboard -> /home/connor/paraceptor/install/px4_offboard/share/ament_index/resource_index/packages
+[1.681s] copying resource/visualize.rviz -> /home/connor/paraceptor/install/px4_offboard/share/ament_index/resource_index/packages
+[1.681s] error: can't copy 'package.xml': doesn't exist or not a regular file
+[1.695s] Invoked command in '/home/connor/paraceptor' returned '1': PYTHONPATH=/home/connor/paraceptor/build/px4_offboard/prefix_override:/home/connor/paraceptor/install/px4_offboard/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated setup.py egg_info --egg-base build/px4_offboard build --build-base /home/connor/paraceptor/build/px4_offboard/build install --record /home/connor/paraceptor/build/px4_offboard/install.log --single-version-externally-managed install_data

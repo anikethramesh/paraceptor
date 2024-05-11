@@ -1,53 +1,7 @@
 #!/usr/bin/env python
-############################################################################
-#
-#   Copyright (C) 2022 PX4 Development Team. All rights reserved.
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions
-# are met:
-#
-# 1. Redistributions of source code must retain the above copyright
-#    notice, this list of conditions and the following disclaimer.
-# 2. Redistributions in binary form must reproduce the above copyright
-#    notice, this list of conditions and the following disclaimer in
-#    the documentation and/or other materials provided with the
-#    distribution.
-# 3. Neither the name PX4 nor the names of its contributors may be
-#    used to endorse or promote products derived from this software
-#    without specific prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-# FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
-# COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
-# OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
-# AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-# ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-# POSSIBILITY OF SUCH DAMAGE.
-#
-############################################################################
-
-__author__ = "Jaeyoung Lim"
-__contact__ = "jalim@ethz.ch"
-
-import rclpy
-import numpy as np
-from rclpy.node import Node
-from rclpy.clock import Clock
-from rclpy.qos import QoSProfile, QoSReliabilityPolicy, QoSHistoryPolicy, QoSDurabilityPolicy
-
-from px4_msgs.msg import OffboardControlMode
-from px4_msgs.msg import TrajectorySetpoint
-from px4_msgs.msg import VehicleStatus
-
+from geometry_msgs.msg import Twist
 
 class OffboardControl(Node):
-
     def __init__(self):
         super().__init__('minimal_publisher')
         qos_profile = QoSProfile(
@@ -57,64 +11,100 @@ class OffboardControl(Node):
             depth=1
         )
 
+        # Subscribers
         self.status_sub = self.create_subscription(
             VehicleStatus,
             '/fmu/out/vehicle_status',
             self.vehicle_status_callback,
             qos_profile)
-        self.publisher_offboard_mode = self.create_publisher(OffboardControlMode, '/fmu/in/offboard_control_mode', qos_profile)
-        self.publisher_trajectory = self.create_publisher(TrajectorySetpoint, '/fmu/in/trajectory_setpoint', qos_profile)
+        self.odometry_sub = self.create_subscription(
+            Odometry,
+            '/fmu/out/vehicle_odometry',
+            self.odometry_callback,
+            qos_profile)
+
+        # Publisher
+        self.publisher_twist = self.create_publisher(Twist, '/fmu/in/setpoint_velocity', qos_profile)
+
+        # Timer
         timer_period = 0.02  # seconds
         self.timer = self.create_timer(timer_period, self.cmdloop_callback)
-        self.dt = timer_period
-        self.declare_parameter('radius', 10.0)
-        self.declare_parameter('omega', 5.0)
-        self.declare_parameter('altitude', 5.0)
+
+        # Parameters
+        self.declare_parameter('waypoint_x', 100.0)
+        self.declare_parameter('waypoint_y', 50.0)
+        self.declare_parameter('waypoint_z', -150.0)
+        self.declare_parameter('yaw_angle', 0.785398)
+
         self.nav_state = VehicleStatus.NAVIGATION_STATE_MAX
         self.arming_state = VehicleStatus.ARMING_STATE_DISARMED
-        # Note: no parameter callbacks are used to prevent sudden inflight changes of radii and omega 
-        # which would result in large discontinuities in setpoints
-        self.theta = 0.0
-        self.radius = self.get_parameter('radius').value
-        self.omega = self.get_parameter('omega').value
-        self.altitude = self.get_parameter('altitude').value
- 
+
+        # Position and orientation
+        self.current_x = 0.0
+        self.current_y = 0.0
+        self.current_z = 0.0
+        self.current_orientation = Quaternion()
+
+    def odometry_callback(self, msg):
+        try:
+            self.current_x = msg.pose.pose.position.x
+            self.current_y = msg.pose.pose.position.y
+            self.current_z = msg.pose.pose.position.z
+            self.current_orientation = msg.pose.pose.orientation
+            yaw_angle = self.quaternion_to_yaw(self.current_orientation)
+
+            # Log the current position and direction
+            self.get_logger().info(f"Position: x={self.current_x}, y={self.current_y}, altitude={self.current_z}, yaw={yaw_angle} radians")
+
+        except Exception as e:
+            self.get_logger().error(f"Error processing odometry data: {str(e)}")
+
     def vehicle_status_callback(self, msg):
-        # TODO: handle NED->ENU transformation
-        print("NAV_STATUS: ", msg.nav_state)
-        print("  - offboard status: ", VehicleStatus.NAVIGATION_STATE_OFFBOARD)
+        self.get_logger().info(f"NAV_STATUS: {msg.nav_state}, OFFBOARD STATUS: {VehicleStatus.NAVIGATION_STATE_OFFBOARD}")
         self.nav_state = msg.nav_state
         self.arming_state = msg.arming_state
 
     def cmdloop_callback(self):
-        # Publish offboard control modes
-        offboard_msg = OffboardControlMode()
-        offboard_msg.timestamp = int(Clock().now().nanoseconds / 1000)
-        offboard_msg.position=True
-        offboard_msg.velocity=False
-        offboard_msg.acceleration=False
-        self.publisher_offboard_mode.publish(offboard_msg)
-        if (self.nav_state == VehicleStatus.NAVIGATION_STATE_OFFBOARD and self.arming_state == VehicleStatus.ARMING_STATE_ARMED):
+        # Fetch waypoint parameters
+        waypoint_x = self.get_parameter('waypoint_x').get_parameter_value().double_value
+        waypoint_y = self.get_parameter('waypoint_y').get_parameter_value().double_value
+        waypoint_z = self.get_parameter('waypoint_z').get_parameter_value().double_value
+        yaw_angle = self.get_parameter('yaw_angle').get_parameter_value().double_value
 
-            trajectory_msg = TrajectorySetpoint()
-            trajectory_msg.position[0] = self.radius * np.cos(self.theta)
-            trajectory_msg.position[1] = self.radius * np.sin(self.theta)
-            trajectory_msg.position[2] = -self.altitude
-            self.publisher_trajectory.publish(trajectory_msg)
+        # Calculate velocity vector towards waypoint
+        diff_x = waypoint_x - self.current_x
+        diff_y = waypoint_y - self.current_y
+        diff_z = waypoint_z - self.current_z
 
-            self.theta = self.theta + self.omega * self.dt
+        # Normalize velocity for movement
+        magnitude = (diff_x**2 + diff_y**2 + diff_z**2)**0.5
+        if magnitude > 0:
+            linear_x = diff_x / magnitude
+            linear_y = diff_y / magnitude
+            linear_z = diff_z / magnitude
+        else:
+            linear_x = linear_y = linear_z = 0.0
 
+        # Set the yaw angular velocity
+        yaw_velocity = 0.2  # Set a fixed angular speed for demonstration purposes
+
+        # Construct Twist message
+        twist_msg = Twist()
+        twist_msg.linear.x = linear_x
+        twist_msg.linear.y = linear_y
+        twist_msg.linear.z = linear_z
+        twist_msg.angular.z = yaw_velocity
+
+        # Publish Twist message
+        if self.nav_state == VehicleStatus.NAVIGATION_STATE_OFFBOARD and self.arming_state == VehicleStatus.ARMING_STATE_ARMED:
+            self.publisher_twist.publish(twist_msg)
 
 def main(args=None):
     rclpy.init(args=args)
-
     offboard_control = OffboardControl()
-
     rclpy.spin(offboard_control)
-
     offboard_control.destroy_node()
     rclpy.shutdown()
-
 
 if __name__ == '__main__':
     main()
