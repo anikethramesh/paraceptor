@@ -26,7 +26,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-                'offboard_control_waypoint = px4_offboard.offboard_control_waypoint:main',
+                'offboard_control = px4_offboard.offboard_control:main',
                 'visualizer = px4_offboard.visualizer:main',
         ],
     },

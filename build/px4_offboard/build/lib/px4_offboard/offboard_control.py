@@ -1,4 +1,40 @@
 #!/usr/bin/env python
+############################################################################
+#
+#   Copyright (C) 2022 PX4 Development Team. All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with the
+#    distribution.
+# 3. Neither the name PX4 nor the names of its contributors may be
+#    used to endorse or promote products derived from this software
+#    without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+# COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+# OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+# AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+# ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+############################################################################
+
+__author__ = "Jaeyoung Lim"
+__contact__ = "jalim@ethz.ch"
+
 import rclpy
 import numpy as np
 from rclpy.node import Node
@@ -33,7 +69,7 @@ class OffboardControl(Node):
         self.dt = timer_period
         self.declare_parameter('radius', 10.0)
         self.declare_parameter('omega', 5.0)
-        self.declare_parameter('altitude', 15.0)
+        self.declare_parameter('altitude', 5.0)
         self.nav_state = VehicleStatus.NAVIGATION_STATE_MAX
         self.arming_state = VehicleStatus.ARMING_STATE_DISARMED
         # Note: no parameter callbacks are used to prevent sudden inflight changes of radii and omega 
@@ -50,49 +86,23 @@ class OffboardControl(Node):
         self.nav_state = msg.nav_state
         self.arming_state = msg.arming_state
 
-    # def cmdloop_callback(self):
-    #     # Publish offboard control modes
-    #     offboard_msg = OffboardControlMode()
-    #     offboard_msg.timestamp = int(Clock().now().nanoseconds / 1000)
-    #     offboard_msg.position=True
-    #     offboard_msg.velocity=False
-    #     offboard_msg.acceleration=False
-    #     self.publisher_offboard_mode.publish(offboard_msg)
-    #     if (self.nav_state == VehicleStatus.NAVIGATION_STATE_OFFBOARD and self.arming_state == VehicleStatus.ARMING_STATE_ARMED):
-
-    #         trajectory_msg = TrajectorySetpoint()
-    #         trajectory_msg.position[0] = self.radius * np.cos(self.theta)
-    #         trajectory_msg.position[1] = self.radius * np.sin(self.theta)
-    #         trajectory_msg.position[2] = -self.altitude
-    #         self.publisher_trajectory.publish(trajectory_msg)
-
-    #         self.theta = self.theta + self.omega * self.dt
     def cmdloop_callback(self):
+        # Publish offboard control modes
         offboard_msg = OffboardControlMode()
         offboard_msg.timestamp = int(Clock().now().nanoseconds / 1000)
-        offboard_msg.position = True
-        offboard_msg.velocity = False
-        offboard_msg.acceleration = False
+        offboard_msg.position=True
+        offboard_msg.velocity=False
+        offboard_msg.acceleration=False
         self.publisher_offboard_mode.publish(offboard_msg)
-
         if (self.nav_state == VehicleStatus.NAVIGATION_STATE_OFFBOARD and self.arming_state == VehicleStatus.ARMING_STATE_ARMED):
-            a = self.radius  # Using radius as the scale factor for simplicity
-
-            # Compute the figure-eight trajectory
-            sin_theta = np.sin(self.theta)
-            cos_theta = np.cos(self.theta)
-            sin_squared = sin_theta ** 2
-            x = a * cos_theta / (1 + sin_squared)
-            y = a * cos_theta * sin_theta / (1 + sin_squared)
 
             trajectory_msg = TrajectorySetpoint()
-            trajectory_msg.position[0] = x
-            trajectory_msg.position[1] = y
+            trajectory_msg.position[0] = self.radius * np.cos(self.theta)
+            trajectory_msg.position[1] = self.radius * np.sin(self.theta)
             trajectory_msg.position[2] = -self.altitude
             self.publisher_trajectory.publish(trajectory_msg)
 
-            # Increment theta
-            self.theta += self.omega * self.dt
+            self.theta = self.theta + self.omega * self.dt
 
 
 def main(args=None):
