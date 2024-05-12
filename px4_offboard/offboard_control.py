@@ -5,9 +5,9 @@ from rclpy.node import Node
 from rclpy.clock import Clock
 from rclpy.qos import QoSProfile, QoSReliabilityPolicy, QoSHistoryPolicy, QoSDurabilityPolicy
 
-from px4_msgs.msg import OffboardControlMode
-from px4_msgs.msg import TrajectorySetpoint
-from px4_msgs.msg import VehicleStatus
+from px4_msgs.msg import OffboardControlMode, TrajectorySetpoint
+from px4_msgs.msg import VehicleStatus, VehicleCommand
+
 
 
 
@@ -47,8 +47,19 @@ class OffboardControl(Node):
         self.nav_state = VehicleStatus.NAVIGATION_STATE_MAX
         self.arming_state = VehicleStatus.ARMING_STATE_DISARMED
 
+        self.vehicle_command_publisher_ = self.create_publisher(VehicleCommand, "/fmu/in/vehicle_command", 10)
+
+        self.nav_state = msg.nav_state
         
- 
+    def arm_vehicle(self):
+        arm_command = VehicleCommand()
+        arm_command.command = VehicleCommand.VEHICLE_CMD_COMPONENT_ARM_DISARM
+        arm_command.param1 = 1.0
+        arm_command.confirmation = 0
+        arm_command.from_external = True
+        self.vehicle_command_publisher_.publish(arm_command)
+        self.get_logger().info('Vehicle armed.')
+
     def vehicle_status_callback(self, msg):
         # TODO: handle NED->ENU transformation
         self.get_logger().info(f"NAV_STATUS: , {msg.nav_state}- offboard status: , {VehicleStatus.NAVIGATION_STATE_OFFBOARD}")
