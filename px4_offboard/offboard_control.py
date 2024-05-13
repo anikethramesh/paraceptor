@@ -8,13 +8,10 @@ from rclpy.qos import QoSProfile, QoSReliabilityPolicy, QoSHistoryPolicy, QoSDur
 from px4_msgs.msg import OffboardControlMode, TrajectorySetpoint
 from px4_msgs.msg import VehicleStatus, VehicleCommand
 
-
-
-
 class OffboardControl(Node):
-
     def __init__(self):
         super().__init__('minimal_publisher')
+
         qos_profile = QoSProfile(
             reliability=QoSReliabilityPolicy.RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT,
             durability=QoSDurabilityPolicy.RMW_QOS_POLICY_DURABILITY_TRANSIENT_LOCAL,
@@ -28,6 +25,7 @@ class OffboardControl(Node):
             self.vehicle_status_callback,
             qos_profile)
         
+        self.vehicle_command_publisher_ = self.create_publisher(VehicleCommand, "/fmu/in/vehicle_command", 10)
         self.publisher_offboard_mode = self.create_publisher(OffboardControlMode, '/fmu/in/offboard_control_mode', qos_profile)
         self.publisher_trajectory = self.create_publisher(TrajectorySetpoint, '/fmu/in/trajectory_setpoint', qos_profile)
 
@@ -43,22 +41,25 @@ class OffboardControl(Node):
         self.current_y = 0.0
         self.current_z = 0.0
         
-
         self.nav_state = VehicleStatus.NAVIGATION_STATE_MAX
         self.arming_state = VehicleStatus.ARMING_STATE_DISARMED
-
-        self.vehicle_command_publisher_ = self.create_publisher(VehicleCommand, "/fmu/in/vehicle_command", 10)
-
         self.nav_state = msg.nav_state
+
+        self.arming_timer = self.create_timer(10.0, self.arm_vehicle) # will activate fucntion after 10 secs
         
     def arm_vehicle(self):
         arm_command = VehicleCommand()
         arm_command.command = VehicleCommand.VEHICLE_CMD_COMPONENT_ARM_DISARM
-        arm_command.param1 = 1.0
-        arm_command.confirmation = 0
+        arm_command.param1 = 1.0 # means arm
+        arm_command.confirmation = 0 # no futher confirmation
         arm_command.from_external = True
         self.vehicle_command_publisher_.publish(arm_command)
         self.get_logger().info('Vehicle armed.')
+    
+    def arm_status_callback(self):
+        if msg.arming_state == VehicleStatus.ARMING_STATE_DISARMED:
+            self.arm_vehicle()
+            self.get_logger().info('Vehicle armed.')
 
     def vehicle_status_callback(self, msg):
         # TODO: handle NED->ENU transformation
@@ -105,8 +106,6 @@ class OffboardControl(Node):
             self.current_x += direction_x * self.dt * 10
             self.current_y += direction_y * self.dt * 10
             self.current_z += direction_z * self.dt * 10
-
-
 
 
 def main(args=None):
