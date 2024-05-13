@@ -33,9 +33,10 @@ class OffboardControl(Node):
         self.timer = self.create_timer(timer_period, self.cmdloop_callback) #calls the cmdloop for the specified timer_period
         self.dt = timer_period
 
-        self.declare_parameter('target_x', 150.0)
-        self.declare_parameter('target_y', 105.0)
-        self.declare_parameter('target_z', -115.0)
+        # NED coords
+        self.declare_parameter('target_x', 150.0) # north 
+        self.declare_parameter('target_y', 105.0) # east
+        self.declare_parameter('target_z', -115.0) # down
 
         self.current_x = 0.0
         self.current_y = 0.0
@@ -55,14 +56,8 @@ class OffboardControl(Node):
         arm_command.from_external = True
         self.vehicle_command_publisher_.publish(arm_command)
         self.get_logger().info('Vehicle armed.')
-    
-    def arm_status_callback(self):
-        if msg.arming_state == VehicleStatus.ARMING_STATE_DISARMED:
-            self.arm_vehicle()
-            self.get_logger().info('Vehicle armed.')
 
     def vehicle_status_callback(self, msg):
-        # TODO: handle NED->ENU transformation
         self.get_logger().info(f"NAV_STATUS: , {msg.nav_state}- offboard status: , {VehicleStatus.NAVIGATION_STATE_OFFBOARD}")
         self.nav_state = msg.nav_state
         self.arming_state = msg.arming_state
@@ -82,19 +77,20 @@ class OffboardControl(Node):
             target_x= self.get_parameter('target_x').value
             target_y = self.get_parameter('target_y').value
             target_z = self.get_parameter('target_z').value
-
+            
+            # calculate the direction vector towards the target
             direction_x = target_x - self.current_x
             direction_y = target_y - self.current_y
             direction_z = target_z - self.current_z
 
-            # Normalize the direction vector (to get a unit vector)
+            # Normalise the direction vector to get a unit vector
             norm = np.sqrt(direction_x**2 + direction_y**2 + direction_z**2)
             if norm > 0:
                 direction_x /= norm
                 direction_y /= norm
                 direction_z /= norm
 
-            # Set the trajectory message to move towards the target
+            # publish TrajectorySetpoint message
             trajectory_msg = TrajectorySetpoint()
             trajectory_msg.position[0] = self.current_x + direction_x * self.dt * 10  
             trajectory_msg.position[1] = self.current_y + direction_y * self.dt * 10
