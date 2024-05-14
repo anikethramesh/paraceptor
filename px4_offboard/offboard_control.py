@@ -46,7 +46,7 @@ class OffboardControl(Node):
         self.arming_state = VehicleStatus.ARMING_STATE_DISARMED
         self.nav_state = msg.nav_state
 
-        self.arming_timer = self.create_timer(10.0, self.arm_vehicle) # will activate fucntion after 10 secs
+        self.arming_timer = self.create_timer(10.0, self.arm_vehicle) # will activate function after 10 secs
         
     def arm_vehicle(self):
         arm_command = VehicleCommand()
