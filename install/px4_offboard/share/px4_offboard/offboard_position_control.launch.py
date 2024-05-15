@@ -25,7 +25,7 @@ def generate_launch_description():
             package='px4_offboard',
             namespace='px4_1',
             executable='recon_drone_path',
-            name='recon'
+            name='px4_1'
         ),
         Node(
             package='rviz2',

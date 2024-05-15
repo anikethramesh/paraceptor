@@ -11,7 +11,7 @@ from px4_msgs.msg import VehicleStatus, VehicleCommand
 class ReconControl(Node):
     def __init__(self, namespace):
         super().__init__('minimal_publisher')
-
+        
         qos_profile = QoSProfile(
             reliability=QoSReliabilityPolicy.RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT,
             durability=QoSDurabilityPolicy.RMW_QOS_POLICY_DURABILITY_TRANSIENT_LOCAL,
@@ -35,7 +35,7 @@ class ReconControl(Node):
 
         # NED coords
         self.declare_parameter('target_x', 60.0) # north 
-        self.declare_parameter('target_y', -10.0) # east
+        self.declare_parameter('target_y', 50.0) # east
         self.declare_parameter('target_z', -115.0) # down
 
         self.current_x = 0.0

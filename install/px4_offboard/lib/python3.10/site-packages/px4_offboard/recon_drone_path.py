@@ -32,15 +32,16 @@ class ReconControl(Node):
         timer_period = 0.02 # seconds
         self.timer = self.create_timer(timer_period, self.cmdloop_callback) #calls the cmdloop for the specified timer_period
         self.dt = timer_period
-
+        self.declare_parameter('radius', 10.0)
+        self.declare_parameter('omega', 5.0)
+        self.declare_parameter('altitude', 5.0)
         # NED coords
-        self.declare_parameter('target_x', 60.0) # north 
-        self.declare_parameter('target_y', 50.0) # east
-        self.declare_parameter('target_z', -115.0) # down
+        self.theta = 0.0
+        self.radius = self.get_parameter('radius').value
+        self.omega = self.get_parameter('omega').value
+        self.altitude = self.get_parameter('altitude').value
 
-        self.current_x = 0.0
-        self.current_y = 0.0
-        self.current_z = 0.0
+
         
         self.nav_state = VehicleStatus.NAVIGATION_STATE_MAX
         self.arming_state = VehicleStatus.ARMING_STATE_DISARMED
@@ -75,34 +76,13 @@ class ReconControl(Node):
         if (self.nav_state == VehicleStatus.NAVIGATION_STATE_OFFBOARD and self.arming_state == VehicleStatus.ARMING_STATE_ARMED):
 
 
-            target_x= self.get_parameter('target_x').value
-            target_y = self.get_parameter('target_y').value
-            target_z = self.get_parameter('target_z').value
-            
-            # calculate the direction vector towards the target
-            direction_x = target_x - self.current_x
-            direction_y = target_y - self.current_y
-            direction_z = target_z - self.current_z
-
-            # Normalise the direction vector to get a unit vector
-            norm = np.sqrt(direction_x**2 + direction_y**2 + direction_z**2)
-            if norm > 0:
-                direction_x /= norm
-                direction_y /= norm
-                direction_z /= norm
-
-            # publish TrajectorySetpoint message
             trajectory_msg = TrajectorySetpoint()
-            trajectory_msg.position[0] = self.current_x + direction_x * self.dt * 10  
-            trajectory_msg.position[1] = self.current_y + direction_y * self.dt * 10
-            trajectory_msg.position[2] = self.current_z + direction_z * self.dt * 10
-
+            trajectory_msg.position[0] = self.radius * np.cos(self.theta)
+            trajectory_msg.position[1] = self.radius * np.sin(self.theta)
+            trajectory_msg.position[2] = -self.altitude
             self.publisher_trajectory.publish(trajectory_msg)
 
-            # Update current position for next iteration (simple simulation)
-            self.current_x += direction_x * self.dt * 10
-            self.current_y += direction_y * self.dt * 10
-            self.current_z += direction_z * self.dt * 10
+            self.theta = self.theta + self.omega * self.dt
 
 
 def main(args=None):
