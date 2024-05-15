@@ -17,10 +17,15 @@ def generate_launch_description():
         ),
         Node(
             package='px4_offboard',
-            namespace='px4_offboard',
+            namespace='px4_2',
             executable='offboard_control',
-            name='control',
-            # parameters= [{'radius': 10.0},{'altitude': 5.0},{'omega': 0.5}]
+            name='inteceptor'
+        ),
+        Node(
+            package='px4_offboard',
+            namespace='px4_1',
+            executable='recon_drone_path',
+            name='recon'
         ),
         Node(
             package='rviz2',

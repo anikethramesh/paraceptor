@@ -50,7 +50,7 @@ source install/setup.bash
 ```
 
 ```
-ros2 launch px4_offboard offboard_position_control.launch.py
+`ros2 launch px4_offboard offboard_position_control.launch.py`
 ```
 
 Now head back to QGroundControl and enable offboard control.  

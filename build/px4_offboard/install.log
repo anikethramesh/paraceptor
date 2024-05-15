@@ -2,10 +2,12 @@
 /home/connor/paraceptor/install/px4_offboard/lib/python3.10/site-packages/px4_offboard/__init__.py
 /home/connor/paraceptor/install/px4_offboard/lib/python3.10/site-packages/px4_offboard/velocity_control.py
 /home/connor/paraceptor/install/px4_offboard/lib/python3.10/site-packages/px4_offboard/visualizer.py
+/home/connor/paraceptor/install/px4_offboard/lib/python3.10/site-packages/px4_offboard/recon_drone_path.py
 /home/connor/paraceptor/install/px4_offboard/lib/python3.10/site-packages/px4_offboard/__pycache__/offboard_control.cpython-310.pyc
 /home/connor/paraceptor/install/px4_offboard/lib/python3.10/site-packages/px4_offboard/__pycache__/__init__.cpython-310.pyc
 /home/connor/paraceptor/install/px4_offboard/lib/python3.10/site-packages/px4_offboard/__pycache__/velocity_control.cpython-310.pyc
 /home/connor/paraceptor/install/px4_offboard/lib/python3.10/site-packages/px4_offboard/__pycache__/visualizer.cpython-310.pyc
+/home/connor/paraceptor/install/px4_offboard/lib/python3.10/site-packages/px4_offboard/__pycache__/recon_drone_path.cpython-310.pyc
 /home/connor/paraceptor/install/px4_offboard/share/ament_index/resource_index/packages/px4_offboard
 /home/connor/paraceptor/install/px4_offboard/share/ament_index/resource_index/packages/visualize.rviz
 /home/connor/paraceptor/install/px4_offboard/share/px4_offboard/package.xml
@@ -21,4 +23,5 @@
 /home/connor/paraceptor/install/px4_offboard/lib/python3.10/site-packages/px4_offboard-0.0.0-py3.10.egg-info/dependency_links.txt
 /home/connor/paraceptor/install/px4_offboard/lib/python3.10/site-packages/px4_offboard-0.0.0-py3.10.egg-info/top_level.txt
 /home/connor/paraceptor/install/px4_offboard/lib/px4_offboard/offboard_control
+/home/connor/paraceptor/install/px4_offboard/lib/px4_offboard/recon_drone_path
 /home/connor/paraceptor/install/px4_offboard/lib/px4_offboard/visualizer

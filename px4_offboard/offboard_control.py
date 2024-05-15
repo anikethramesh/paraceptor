@@ -9,7 +9,7 @@ from px4_msgs.msg import OffboardControlMode, TrajectorySetpoint
 from px4_msgs.msg import VehicleStatus, VehicleCommand
 
 class OffboardControl(Node):
-    def __init__(self):
+    def __init__(self, namespace):
         super().__init__('minimal_publisher')
 
         qos_profile = QoSProfile(
@@ -21,13 +21,13 @@ class OffboardControl(Node):
 
         self.status_sub = self.create_subscription(
             VehicleStatus,
-            '/fmu/out/vehicle_status',
+            f'/{namespace}/fmu/out/vehicle_status',
             self.vehicle_status_callback,
             qos_profile)
         
-        self.vehicle_command_publisher_ = self.create_publisher(VehicleCommand, "/fmu/in/vehicle_command", 10)
-        self.publisher_offboard_mode = self.create_publisher(OffboardControlMode, '/fmu/in/offboard_control_mode', qos_profile)
-        self.publisher_trajectory = self.create_publisher(TrajectorySetpoint, '/fmu/in/trajectory_setpoint', qos_profile)
+        self.vehicle_command_publisher_ = self.create_publisher(VehicleCommand, f'/{namespace}/fmu/in/vehicle_command', 10)
+        self.publisher_offboard_mode = self.create_publisher(OffboardControlMode, f'/{namespace}/fmu/in/offboard_control_mode', qos_profile)
+        self.publisher_trajectory = self.create_publisher(TrajectorySetpoint, f'/{namespace}/fmu/in/trajectory_setpoint', qos_profile)
 
         timer_period = 0.02 # seconds
         self.timer = self.create_timer(timer_period, self.cmdloop_callback) #calls the cmdloop for the specified timer_period
@@ -44,24 +44,25 @@ class OffboardControl(Node):
         
         self.nav_state = VehicleStatus.NAVIGATION_STATE_MAX
         self.arming_state = VehicleStatus.ARMING_STATE_DISARMED
-        self.nav_state = msg.nav_state
+   
 
         self.arming_timer = self.create_timer(10.0, self.arm_vehicle) # will activate function after 10 secs
         
     def arm_vehicle(self):
-        arm_command = VehicleCommand()
-        arm_command.command = VehicleCommand.VEHICLE_CMD_COMPONENT_ARM_DISARM
-        arm_command.param1 = 1.0 # means arm
-        arm_command.confirmation = 0 # no futher confirmation
-        arm_command.from_external = True
-        self.vehicle_command_publisher_.publish(arm_command)
-        self.get_logger().info('Vehicle armed.')
+        if self.nav_state == VehicleStatus.NAVIGATION_STATE_OFFBOARD:
+            arm_command = VehicleCommand()
+            arm_command.command = VehicleCommand.VEHICLE_CMD_COMPONENT_ARM_DISARM
+            arm_command.param1 = 1.0 # means arm
+            arm_command.confirmation = 0 # no futher confirmation
+            arm_command.from_external = True
+            self.vehicle_command_publisher_.publish(arm_command)
+            self.get_logger().info('INTECEPTOR Vehicle armed.')
 
     def vehicle_status_callback(self, msg):
-        self.get_logger().info(f"NAV_STATUS: , {msg.nav_state}- offboard status: , {VehicleStatus.NAVIGATION_STATE_OFFBOARD}")
+        self.get_logger().info(f"INTECEPTOR NAV_STATUS: , {msg.nav_state}- offboard status: , {VehicleStatus.NAVIGATION_STATE_OFFBOARD}")
         self.nav_state = msg.nav_state
         self.arming_state = msg.arming_state
-        self.get_logger().info(f"Position: x={self.current_x}, y={self.current_y}, altitude={self.current_z}")
+        # self.get_logger().info(f"Position: x={self.current_x}, y={self.current_y}, altitude={self.current_z}")
 
     def cmdloop_callback(self):
         # Publish offboard control modes
@@ -106,8 +107,8 @@ class OffboardControl(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-
-    offboard_control = OffboardControl()
+    namespace = 'px4_2'
+    offboard_control = OffboardControl(namespace=namespace)
 
     rclpy.spin(offboard_control)
 
