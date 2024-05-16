@@ -6,8 +6,7 @@ from rclpy.clock import Clock
 from rclpy.qos import QoSProfile, QoSReliabilityPolicy, QoSHistoryPolicy, QoSDurabilityPolicy
 
 from px4_msgs.msg import OffboardControlMode, TrajectorySetpoint
-from px4_msgs.msg import VehicleStatus, VehicleCommand, VehicleLocalPosition
-from geometry_msgs.msg import Point
+from px4_msgs.msg import VehicleStatus, VehicleCommand
 
 class ReconControl(Node):
     def __init__(self, namespace):
@@ -26,18 +25,9 @@ class ReconControl(Node):
             self.vehicle_status_callback,
             qos_profile)
         
-        self.recon_coords = self.create_subscription(
-            VehicleLocalPosition,
-            f'/{namespace}fmu/out/vehicle_local_position',
-            self.local_position,
-            qos_profile)
-        
-
         self.vehicle_command_publisher_ = self.create_publisher(VehicleCommand, f'/{namespace}/fmu/in/vehicle_command', 10)
         self.publisher_offboard_mode = self.create_publisher(OffboardControlMode, f'/{namespace}/fmu/in/offboard_control_mode', qos_profile)
         self.publisher_trajectory = self.create_publisher(TrajectorySetpoint, f'/{namespace}/fmu/in/trajectory_setpoint', qos_profile)
-        self.publisher_coords = self.create_publisher(Point, f'/{namespace}/fmu/in/recon_coords', qos_profile)
-
 
         timer_period = 0.02 # seconds
         self.timer = self.create_timer(timer_period, self.cmdloop_callback) #calls the cmdloop for the specified timer_period
@@ -69,18 +59,7 @@ class ReconControl(Node):
         self.get_logger().info(f"RECON NAV_STATUS: {msg.nav_state} - offboard status: {VehicleStatus.NAVIGATION_STATE_OFFBOARD}")
         self.nav_state = msg.nav_state
         self.arming_state = msg.arming_state
-    
-    def local_position(self, msg):
-        self.current_x = msg.x
-        self.current_y = msg.y
-        self.current_z = msg.z
 
-        coords_msg = Point()
-        coords_msg.x = self.current_x
-        coords_msg.y = self.current_y
-        coords_msg.z = self.current_z
-        self.publisher_coords.publish(coords_msg)
-        
     def cmdloop_callback(self):
         # Publish offboard control modes
         offboard_msg = OffboardControlMode()

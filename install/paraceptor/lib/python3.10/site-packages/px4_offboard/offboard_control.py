@@ -7,7 +7,6 @@ from rclpy.qos import QoSProfile, QoSReliabilityPolicy, QoSHistoryPolicy, QoSDur
 
 from px4_msgs.msg import OffboardControlMode, TrajectorySetpoint
 from px4_msgs.msg import VehicleStatus, VehicleCommand
-from geometry_msgs.msg import Point
 
 class OffboardControl(Node):
     def __init__(self, namespace):
@@ -25,13 +24,6 @@ class OffboardControl(Node):
             f'/{namespace}/fmu/out/vehicle_status',
             self.vehicle_status_callback,
             qos_profile)
-        
-        self.recon_coords = self.create_subscription(
-            Point,
-            f'/{namespace}/fmu/out/recon_coords',
-            self.get_recon_coords,
-            qos_profile
-        )
         
         self.vehicle_command_publisher_ = self.create_publisher(VehicleCommand, f'/{namespace}/fmu/in/vehicle_command', 10)
         self.publisher_offboard_mode = self.create_publisher(OffboardControlMode, f'/{namespace}/fmu/in/offboard_control_mode', qos_profile)
@@ -71,11 +63,6 @@ class OffboardControl(Node):
         self.nav_state = msg.nav_state
         self.arming_state = msg.arming_state
         # self.get_logger().info(f"Position: x={self.current_x}, y={self.current_y}, altitude={self.current_z}")
-    
-    def get_recon_coords(self, msg):
-        self.recon_x = msg.x
-        self.recon_y = msg.y
-        self.recon_z = msg.z
 
     def cmdloop_callback(self):
         # Publish offboard control modes

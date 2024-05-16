@@ -50,7 +50,7 @@ source install/setup.bash
 ```
 
 ```
-`ros2 launch px4_offboard offboard_position_control.launch.py`
+ros2 launch px4_offboard offboard_position_control.launch.py
 ```
 
 Now head back to QGroundControl and enable offboard control.  
@@ -60,11 +60,12 @@ Click the current mode "HOLD" in upper left, then in the menu, select "Offboard"
 After a 1-2 sec pause, the demo should take control and you should see the 3d indicator in Rviz drawing circles.
 
 
-## after script changes #####################
+## After script changes #####################
+```
 colcon build --packages-select px4_offboard
 source install/setup.bash
 ros2 launch px4_offboard offboard_position_control.launch.py
-
+```
 
 ## RUN MULTI DRONE
 ## Terminal 1 
@@ -77,7 +78,7 @@ export PYTHONOPTIMIZE=1
 ros2 run micro_ros_agent micro_ros_agent udp4 --port 8888 ROS_DOMAIN_ID=0
 ```
 
-## Terminal 2 
+## Terminal 2 Drone 1 Recon
 ```
 cd ~/PX4-Autopilot
 source install/setup.bash
@@ -86,7 +87,7 @@ export PYTHONOPTIMIZE=1
 PX4_SYS_AUTOSTART=4001 PX4_SIM_MODEL=gz_x500 ./build/px4_sitl_default/bin/px4 -i 1
 ```
 
-## Terminal 3
+## Terminal 3 Drone 2 Inteceptor
 ```
 cd ~/PX4-Autopilot
 source install/setup.bash
@@ -111,7 +112,7 @@ export ROS_DOMAIN_ID=0
 export PYTHONOPTIMIZE=1
 source ../px4_ros_com_ws/install/setup.bash
 source install/setup.bash
-`ros2 launch px4_offboard offboard_position_control.launch.py`
+ros2 launch px4_offboard offboard_position_control.launch.py
 ```
 
 
