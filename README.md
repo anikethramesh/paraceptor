@@ -10,7 +10,7 @@
 
 Refer to doc for install
 
-## RUN
+## RUN SINGLE DRONE
 ## Terminal 1 
 ```
 cd ~/microros_ws
@@ -64,6 +64,57 @@ After a 1-2 sec pause, the demo should take control and you should see the 3d in
 colcon build --packages-select px4_offboard
 source install/setup.bash
 ros2 launch px4_offboard offboard_position_control.launch.py
+
+
+## RUN MULTI DRONE
+## Terminal 1 
+```
+cd ~/microros_ws
+source ../px4_ros_com_ws/install/setup.bash
+source install/setup.bash
+export ROS_DOMAIN_ID=0
+export PYTHONOPTIMIZE=1
+ros2 run micro_ros_agent micro_ros_agent udp4 --port 8888 ROS_DOMAIN_ID=0
+```
+
+## Terminal 2 
+```
+cd ~/PX4-Autopilot
+source install/setup.bash
+export ROS_DOMAIN_ID=0
+export PYTHONOPTIMIZE=1
+PX4_SYS_AUTOSTART=4001 PX4_SIM_MODEL=gz_x500 ./build/px4_sitl_default/bin/px4 -i 1
+```
+
+## Terminal 3
+```
+cd ~/PX4-Autopilot
+source install/setup.bash
+export ROS_DOMAIN_ID=0
+export PYTHONOPTIMIZE=1
+PX4_SYS_AUTOSTART=4001 PX4_GZ_MODEL_POSE="0,1" PX4_SIM_MODEL=gz_x500 ./build/px4_sitl_default/bin/px4 -i 2
+```
+
+## Terminal 4 from home directory 
+```
+source install/setup.bash
+chmod +x ./QGroundControl.AppImage
+./QGroundControl.AppImage 
+```
+Click Takeoff from left hand menu, then slide to confirm
+
+## Terminal 5
+```
+cd ~/px4-offboard
+source install/setup.bash
+export ROS_DOMAIN_ID=0
+export PYTHONOPTIMIZE=1
+source ../px4_ros_com_ws/install/setup.bash
+source install/setup.bash
+`ros2 launch px4_offboard offboard_position_control.launch.py`
+```
+
+
 
 ### Hardware
 
